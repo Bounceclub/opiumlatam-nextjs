@@ -17,6 +17,8 @@ const nextConfig = withPWA({
       },
     ],
   },
+  // Use webpack instead of Turbopack for next-pwa compatibility
+  webpack: (config) => config,
 });
 
 module.exports = nextConfig;
