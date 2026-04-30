@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --bg2: #f6f6f6;
+  --bg3: #eeeeee;
+  --border: #e2e2e2;
+  --border2: #c8c8c8;
+  --text: #1c1c1c;
+  --text2: #505050;
+  --text3: #909090;
+  --head: #0a0a0a;
+  --sub-bg: #1c1c1c;
+  --acc: #0a0a0a;
+  --acc2: #333333;
+  --hdr: rgba(255, 255, 255, 0.97);
+  --sh: rgba(0, 0, 0, 0.07);
+  --tr: 0.22s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #0e0e0e;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --border: #2a2a2a;
+  --border2: #3c3c3c;
+  --text: #e2e2e2;
+  --text2: #aaaaaa;
+  --text3: #606060;
+  --head: #f2f2f2;
+  --sub-bg: #0a0a0a;
+  --acc: #f2f2f2;
+  --acc2: #cccccc;
+  --hdr: rgba(14, 14, 14, 0.97);
+  --sh: rgba(0, 0, 0, 0.5);
+  --tr: 0.22s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans), sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+  transition: background var(--tr), color var(--tr);
+}
+
+/* Animaciones */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s ease both;
+}
+
+.animate-hero-fade-in {
+  animation: heroFadeIn 0.35s ease both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease both;
+}
