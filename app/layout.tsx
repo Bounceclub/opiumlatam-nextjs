@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Barlow_Condensed, Source_Serif_4, DM_Sans } from "next/font/google";
 import "./globals.css";
+import PushNotificationPrompt from "@/components/PushNotificationPrompt";
 
 const anton = Anton({
   weight: "400",
@@ -62,11 +63,26 @@ export default function RootLayout({
             `,
           }}
         />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-SNRQY97T7V"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-SNRQY97T7V');
+            `,
+          }}
+        />
       </head>
       <body
         className={`${anton.variable} ${barlowCondensed.variable} ${sourceSerif.variable} ${dmSans.variable}`}
       >
         {children}
+        <PushNotificationPrompt />
       </body>
     </html>
   );

@@ -5,9 +5,10 @@ import { addDoc, updateDoc, doc, deleteDoc, collection } from 'firebase/firestor
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage, auth } from '@/lib/firebase';
 import { Article } from '@/types';
+import { validateArticleData } from '@/lib/sanitize';
 import MediaUploader from '@/components/MediaUploader';
 import MediaList from '@/components/MediaList';
-import { X, Save, Trash2, Plus } from 'lucide-react';
+import { X, Save, Trash2, Plus, AlertCircle } from 'lucide-react';
 
 interface ArticleEditorProps {
   article?: Article;
@@ -17,6 +18,7 @@ interface ArticleEditorProps {
 
 export default function ArticleEditor({ article, onSave, onCancel }: ArticleEditorProps) {
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     section: 'noticias' as 'noticias' | 'discusion' | 'resenas',
@@ -78,6 +80,7 @@ export default function ArticleEditor({ article, onSave, onCancel }: ArticleEdit
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors([]);
     setLoading(true);
 
     try {
@@ -89,6 +92,14 @@ export default function ArticleEditor({ article, onSave, onCancel }: ArticleEdit
         date: article?.date || new Date().toISOString().split('T')[0],
         score: formData.section === 'resenas' ? formData.score : null,
       };
+
+      // Validate article data
+      const validation = validateArticleData(articleData);
+      if (!validation.valid) {
+        setValidationErrors(validation.errors);
+        setLoading(false);
+        return;
+      }
 
       if (article?.id) {
         await updateDoc(doc(db, 'articles', article.id), articleData);
@@ -385,6 +396,25 @@ export default function ArticleEditor({ article, onSave, onCancel }: ArticleEdit
         </div>
 
         {/* Actions */}
+        {validationErrors.length > 0 && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500 rounded">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-barlow-condensed text-xs font-bold tracking-widest uppercase text-red-500 mb-2">
+                  Por favor corrige los siguientes errores:
+                </p>
+                <ul className="space-y-1">
+                  {validationErrors.map((error, index) => (
+                    <li key={index} className="font-barlow-condensed text-xs font-semibold tracking-widest uppercase text-red-400">
+                      • {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="flex items-center gap-4 pt-6 border-t border-[var(--border)]">
           <button
             type="submit"
