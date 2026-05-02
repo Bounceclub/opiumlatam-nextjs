@@ -25,7 +25,7 @@ export async function GET() {
     // Test query with explicit server source
     console.log('📝 Testing query with server source...');
     const query = collection(db, 'articles');
-    const snapshot = await getDocs(query, { source: 'server' });
+    const snapshot = await getDocs(query);
 
     console.log(`✅ Query completed. Found ${snapshot.docs.length} documents`);
     console.log(`📊 Snapshot metadata:`, {

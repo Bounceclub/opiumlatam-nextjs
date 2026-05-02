@@ -1,45 +1,13 @@
 import { NextResponse } from 'next/server';
-import admin from 'firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function GET() {
   try {
     console.log('🔍 Testing with Firebase Admin SDK...');
 
-    // Initialize Firebase Admin
-    if (!admin.apps.length) {
-      try {
-        // Try to initialize with environment variables (for Vercel deployment)
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-          const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-          admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            projectId: 'opiumlatam'
-          });
-          console.log('✅ Firebase Admin initialized with environment variables');
-        } else {
-          // Try to initialize with service account file (for local development)
-          const serviceAccount = require('../../firebase-service-account.json');
-          admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            projectId: 'opiumlatam'
-          });
-          console.log('✅ Firebase Admin initialized with service account file');
-        }
-      } catch (error) {
-        console.log('⚠️ Could not initialize with service account, trying default config');
-        // Fallback to default config
-        admin.initializeApp({
-          projectId: 'opiumlatam'
-        });
-        console.log('✅ Firebase Admin initialized with default config');
-      }
-    }
-
-    const db = admin.firestore();
-
     // Test query
     console.log('📝 Testing query...');
-    const snapshot = await db.collection('articles').get();
+    const snapshot = await adminDb.collection('articles').get();
 
     console.log(`✅ Query completed. Found ${snapshot.docs.length} documents`);
 
