@@ -43,7 +43,7 @@ export async function GET() {
       hasPendingWrites: snapshot.metadata.hasPendingWrites
     });
 
-    const articles = [];
+    const articles: Array<{ id: string; title: string; section: string; date: any; fromCache: boolean }> = [];
     snapshot.docs.forEach(doc => {
       const data = doc.data();
       articles.push({
