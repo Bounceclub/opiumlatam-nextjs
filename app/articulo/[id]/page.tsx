@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { generateArticleMetadata, generateArticleSchema } from '@/lib/seo';
 import { Article } from '@/types';
 import ArticleContent from './ArticleContent';
@@ -12,9 +11,9 @@ interface ArticlePageProps {
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { id } = await params;
-  const articleDoc = await getDoc(doc(db, 'articles', id));
+  const articleDoc = await adminDb.collection('articles').doc(id).get();
 
-  if (!articleDoc.exists()) {
+  if (!articleDoc.exists) {
     return {
       title: 'Artículo no encontrado | OpiumLATAM',
     };
@@ -28,9 +27,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id } = await params;
-  const articleDoc = await getDoc(doc(db, 'articles', id));
+  const articleDoc = await adminDb.collection('articles').doc(id).get();
 
-  if (!articleDoc.exists()) {
+  if (!articleDoc.exists) {
     notFound();
   }
 
