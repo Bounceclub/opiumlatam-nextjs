@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableMultiTabIndexedDbPersistence, clearIndexedDbPersistence } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 
@@ -15,8 +15,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+// Initialize Firestore
+const db = getFirestore(app);
+
 // Initialize services
-export const db = getFirestore(app);
+export { db };
 export const storage = getStorage(app);
 export const auth = getAuth(app);
 

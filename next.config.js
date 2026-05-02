@@ -50,6 +50,11 @@ const nextConfig = withPWA({
         hostname: "yt3.ggpht.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "**",
+      },
     ],
   },
   // Use webpack instead of Turbopack for next-pwa compatibility

@@ -1,0 +1,61 @@
+import { NextResponse } from 'next/server';
+import { collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+export async function GET() {
+  try {
+    console.log('🔍 Testing Firestore with direct initialization...');
+
+    // Initialize Firebase directly
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmvOiL1fJYW9sM_dw1zw-zijtcV4Crb0k",
+      authDomain: "opiumlatam.firebaseapp.com",
+      projectId: "opiumlatam",
+      storageBucket: "opiumlatam.firebasestorage.app",
+      messagingSenderId: "572727555725",
+      appId: "1:572727555725:web:2ff18230345838002754c4"
+    };
+
+    console.log('🔧 Firebase config:', firebaseConfig);
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    console.log('✅ Firebase initialized');
+
+    // Test query
+    console.log('📝 Testing query...');
+    const query = collection(db, 'articles');
+    const snapshot = await getDocs(query);
+    console.log(`✅ Found ${snapshot.docs.length} articles`);
+
+    const articles = [];
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      articles.push({
+        id: doc.id,
+        title: data.title,
+        section: data.section,
+        date: data.date,
+        allFields: Object.keys(data)
+      });
+    });
+
+    return NextResponse.json({
+      success: true,
+      totalArticles: articles.length,
+      articles: articles,
+      message: 'Direct initialization test completed'
+    });
+
+  } catch (error) {
+    console.error('❌ Test error:', error);
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, { status: 500 });
+  }
+}

@@ -84,14 +84,33 @@ export default function ArticleEditor({ article, onSave, onCancel }: ArticleEdit
     setLoading(true);
 
     try {
+      // Check if user is authenticated
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('Debes estar autenticado para guardar artículos. Por favor, inicia sesión nuevamente.');
+      }
+
+      // Check if user is admin
+      if (user.email !== 'latamopium@gmail.com') {
+        throw new Error('No tienes permisos para guardar artículos. Solo el admin puede crear artículos.');
+      }
+
+      console.log('👤 User authenticated:', {
+        uid: user.uid,
+        email: user.email,
+        isAdmin: user.email === 'latamopium@gmail.com'
+      });
+
       const articleData = {
         ...formData,
         images,
         videos,
         audios,
-        date: article?.date || new Date().toISOString().split('T')[0],
+        date: article?.date || new Date().toISOString(),
         score: formData.section === 'resenas' ? formData.score : null,
       };
+
+      console.log('📝 Saving article:', articleData);
 
       // Validate article data
       const validation = validateArticleData(articleData);
@@ -102,14 +121,18 @@ export default function ArticleEditor({ article, onSave, onCancel }: ArticleEdit
       }
 
       if (article?.id) {
+        console.log('✏️ Updating article:', article.id);
         await updateDoc(doc(db, 'articles', article.id), articleData);
       } else {
+        console.log('➕ Creating new article');
         await addDoc(collection(db, 'articles'), articleData);
       }
 
+      console.log('✅ Article saved successfully');
       onSave();
     } catch (error) {
-      console.error('Error saving article:', error);
+      console.error('❌ Error saving article:', error);
+      alert(error instanceof Error ? error.message : 'Error al guardar el artículo');
     } finally {
       setLoading(false);
     }

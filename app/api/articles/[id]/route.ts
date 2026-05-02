@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { adminDb } from '@/lib/firebase-admin';
+import { Article } from '@/types';
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    console.log('🔍 Fetching article with Firebase Admin SDK...');
+    console.log(`📝 Article ID: ${id}`);
+
+    const docRef = adminDb.collection('articles').doc(id);
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists()) {
+      return NextResponse.json({
+        success: false,
+        error: 'Artículo no encontrado'
+      }, { status: 404 });
+    }
+
+    const article = {
+      id: docSnap.id,
+      ...docSnap.data()
+    } as Article;
+
+    console.log(`✅ Found article: ${article.title}`);
+
+    return NextResponse.json({
+      success: true,
+      article: article
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching article:', error);
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: String(error)
+    }, { status: 500 });
+  }
+}

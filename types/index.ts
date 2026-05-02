@@ -50,3 +50,29 @@ export interface NewsletterSubscriber {
   email: string;
   active: boolean;
 }
+
+export interface SocialPost {
+  id: string;
+  platform: 'twitter' | 'instagram' | 'tiktok' | 'youtube';
+  platformId: string;
+  content: string;
+  author: string;
+  authorAvatar?: string;
+  media?: string[];
+  likes: number;
+  comments: number;
+  shares: number;
+  createdAt: string;
+  fetchedAt: string;
+  url: string;
+  notified: boolean;
+}
+
+export interface SocialConfig {
+  platform: string;
+  apiKey?: string;
+  accessToken?: string;
+  lastFetched: string;
+  fetchInterval: number;
+  enabled: boolean;
+}

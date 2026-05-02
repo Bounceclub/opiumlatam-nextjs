@@ -1,7 +1,50 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, where, getDoc, doc } from 'firebase/firestore';
-import { db } from './firebase';
 import { Article } from '@/types';
+
+// Variable para controlar si usar Firebase Admin SDK (API) o datos de prueba
+const USE_API = true; // Cambiar a false para usar datos de prueba
+const USE_MOCK_DATA = false; // Cambiar a true para usar datos de prueba locales
+
+// Datos de prueba mientras se soluciona el problema de conexión a Firebase
+const MOCK_ARTICLES: Article[] = [
+  {
+    id: 'mock-1',
+    title: 'Playboi Carti saca el videoclip de CRUSH junto a Travis Scott',
+    excerpt: 'El rapero de Atlanta estrena su nuevo video con una colaboración inesperada.',
+    body: 'Playboi Carti ha lanzado el videoclip de su tema "CRUSH" featuring Travis Scott. El video ha causado sensación en las redes sociales por su estética visual única y la química entre ambos artistas.',
+    author: 'Redacción',
+    section: 'noticias',
+    category: 'Hip Hop',
+    date: '2026-03-15T22:28:21.878Z',
+    pinned: true,
+    cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=450&fit=crop',
+    readtime: '3 min lectura'
+  },
+  {
+    id: 'mock-2',
+    title: 'Apollored1 obtuvo un contrato por la discográfica Interscope',
+    excerpt: 'El artista emergente firma con una de las discográficas más importantes del mundo.',
+    body: 'Apollored1 ha firmado un contrato discográfico con Interscope Records, una de las discográficas más influyentes de la industria musical. Este acuerdo marca un hito importante en su carrera.',
+    author: 'Redacción',
+    section: 'noticias',
+    category: 'Música',
+    date: '2026-03-17T23:44:20.804Z',
+    cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&h=450&fit=crop',
+    readtime: '2 min lectura'
+  },
+  {
+    id: 'mock-3',
+    title: 'Nuevos vinilos de MUSIC - SORRY 4 DA WAIT',
+    excerpt: 'Lanzamiento exclusivo en formato vinilo del último álbum de MUSIC.',
+    body: 'MUSIC anuncia el lanzamiento de su último álbum "SORRY 4 DA WAIT" en formato vinilo. Esta edición especial incluye material exclusivo y artwork original.',
+    author: 'Redacción',
+    section: 'noticias',
+    category: 'Vinilos',
+    date: '2026-03-15T17:06:05.330Z',
+    cover: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&h=450&fit=crop',
+    readtime: '2 min lectura'
+  }
+];
 
 export function useArticles(section?: string) {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -12,37 +55,47 @@ export function useArticles(section?: string) {
     setLoading(true);
     setError(null);
 
-    let q = query(collection(db, 'articles'), orderBy('date', 'desc'));
+    if (USE_MOCK_DATA) {
+      // Usar datos de prueba locales
+      const filteredArticles = section
+        ? MOCK_ARTICLES.filter(article => article.section === section)
+        : MOCK_ARTICLES;
 
-    if (section) {
-      q = query(collection(db, 'articles'), where('section', '==', section), orderBy('date', 'desc'));
+      setTimeout(() => {
+        setArticles(filteredArticles);
+        setLoading(false);
+      }, 500);
+      return;
     }
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const articlesData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Article[];
-        setArticles(articlesData);
-        setLoading(false);
-      },
-      (err) => {
-        // Silently handle errors to avoid console spam
-        console.debug('Error fetching articles:', err.message);
-        setError(err.message);
-        setLoading(false);
-      }
-    );
+    if (USE_API) {
+      // Usar API con Firebase Admin SDK
+      const url = section
+        ? `/api/articles?section=${section}`
+        : '/api/articles';
 
-    return () => {
-      try {
-        unsubscribe();
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    };
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setArticles(data.articles);
+          } else {
+            setError(data.error || 'Error al cargar artículos');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching articles:', err);
+          setError(err.message || 'Error al cargar artículos');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Usar Firebase directamente (cuando se solucione el problema de conexión)
+      // Esta opción está deshabilitada por ahora
+      setArticles([]);
+      setLoading(false);
+    }
   }, [section]);
 
   return { articles, loading, error };
@@ -62,20 +115,45 @@ export function useArticle(id: string) {
     setLoading(true);
     setError(null);
 
-    getDoc(doc(db, 'articles', id))
-      .then((docSnap) => {
-        if (docSnap.exists()) {
-          setArticle({ id: docSnap.id, ...docSnap.data() } as Article);
+    if (USE_MOCK_DATA) {
+      // Usar datos de prueba locales
+      const foundArticle = MOCK_ARTICLES.find(article => article.id === id);
+
+      setTimeout(() => {
+        if (foundArticle) {
+          setArticle(foundArticle);
         } else {
           setError('Artículo no encontrado');
         }
         setLoading(false);
-      })
-      .catch((err) => {
-        console.debug('Error fetching article:', err.message);
-        setError(err.message);
-        setLoading(false);
-      });
+      }, 300);
+      return;
+    }
+
+    if (USE_API) {
+      // Usar API con Firebase Admin SDK
+      fetch(`/api/articles/${id}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setArticle(data.article);
+          } else {
+            setError(data.error || 'Error al cargar artículo');
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching article:', err);
+          setError(err.message || 'Error al cargar artículo');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Usar Firebase directamente (cuando se solucione el problema de conexión)
+      // Esta opción está deshabilitada por ahora
+      setArticle(null);
+      setLoading(false);
+    }
   }, [id]);
 
   return { article, loading, error };
@@ -86,29 +164,40 @@ export function usePinnedArticle() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'articles'), where('pinned', '==', true), orderBy('date', 'desc'));
+    setLoading(true);
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        if (!snapshot.empty) {
-          setArticle({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Article);
-        }
-        setLoading(false);
-      },
-      (err) => {
-        console.debug('Error fetching pinned article:', err.message);
-        setLoading(false);
-      }
-    );
+    if (USE_MOCK_DATA) {
+      // Usar datos de prueba locales
+      const pinnedArticle = MOCK_ARTICLES.find(article => article.pinned);
 
-    return () => {
-      try {
-        unsubscribe();
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    };
+      setTimeout(() => {
+        setArticle(pinnedArticle || null);
+        setLoading(false);
+      }, 300);
+      return;
+    }
+
+    if (USE_API) {
+      // Usar API con Firebase Admin SDK
+      fetch('/api/articles/pinned')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setArticle(data.article);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching pinned article:', err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Usar Firebase directamente (cuando se solucione el problema de conexión)
+      // Esta opción está deshabilitada por ahora
+      setArticle(null);
+      setLoading(false);
+    }
   }, []);
 
   return { article, loading };
