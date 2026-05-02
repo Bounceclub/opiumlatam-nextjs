@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Article } from '@/types';
 
 export async function GET(
@@ -9,13 +10,13 @@ export async function GET(
   try {
     const { id } = await params;
 
-    console.log('🔍 Fetching article with Firebase Admin SDK...');
+    console.log('🔍 Fetching article with Firebase Client SDK...');
     console.log(`📝 Article ID: ${id}`);
 
-    const docRef = adminDb.collection('articles').doc(id);
-    const docSnap = await docRef.get();
+    const docRef = doc(db, 'articles', id);
+    const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists) {
+    if (!docSnap.exists()) {
       return NextResponse.json({
         success: false,
         error: 'Artículo no encontrado'
