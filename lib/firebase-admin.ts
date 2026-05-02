@@ -3,32 +3,42 @@ import admin from 'firebase-admin';
 // Initialize Firebase Admin
 if (!admin.apps.length) {
   try {
-    const projectId = process.env.FIREBASE_PROJECT_ID || 'opiumlatam';
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-    console.log('🔧 Firebase Admin config check:', {
-      projectId,
-      hasClientEmail: !!clientEmail,
-      hasPrivateKey: !!privateKey,
-      privateKeyLength: privateKey?.length || 0
-    });
-
-    if (clientEmail && privateKey) {
+    // Try to use FIREBASE_SERVICE_ACCOUNT_KEY (JSON string) first
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
       admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          clientEmail,
-          privateKey,
-        }),
+        credential: admin.credential.cert(serviceAccount),
       });
-      console.log('✅ Firebase Admin initialized with environment variables');
+      console.log('✅ Firebase Admin initialized with FIREBASE_SERVICE_ACCOUNT_KEY');
     } else {
-      // Fallback to default config
-      admin.initializeApp({
+      // Fallback to individual environment variables
+      const projectId = process.env.FIREBASE_PROJECT_ID || 'opiumlatam';
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+      console.log('🔧 Firebase Admin config check:', {
         projectId,
+        hasClientEmail: !!clientEmail,
+        hasPrivateKey: !!privateKey,
+        privateKeyLength: privateKey?.length || 0
       });
-      console.log('⚠️ Firebase Admin initialized with default config (no credentials)');
+
+      if (clientEmail && privateKey) {
+        admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId,
+            clientEmail,
+            privateKey,
+          }),
+        });
+        console.log('✅ Firebase Admin initialized with environment variables');
+      } else {
+        // Fallback to default config
+        admin.initializeApp({
+          projectId,
+        });
+        console.log('⚠️ Firebase Admin initialized with default config (no credentials)');
+      }
     }
   } catch (error) {
     console.log('❌ Could not initialize Firebase Admin:', error instanceof Error ? error.message : String(error));
