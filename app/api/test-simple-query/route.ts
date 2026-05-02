@@ -12,7 +12,7 @@ export async function GET() {
     const simpleSnapshot = await getDocs(simpleQuery);
     console.log(`✅ Found ${simpleSnapshot.docs.length} articles`);
 
-    const articles = [];
+    const articles: Array<{ id: string; title: string; section: string; date: any; allFields: string[] }> = [];
     simpleSnapshot.docs.forEach(doc => {
       const data = doc.data();
       articles.push({

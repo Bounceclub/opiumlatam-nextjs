@@ -22,7 +22,7 @@ export async function GET() {
     }
 
     // Get detailed information about each document
-    const articles = [];
+    const articles: Array<{ id: string; title: string; section: string; date: any; pinned: boolean; category: string; excerpt: string; author: string; cover: string; hasAllRequiredFields: boolean; fields: string[] }> = [];
     for (const docSnapshot of allDocsSnapshot.docs) {
       const data = docSnapshot.data();
       articles.push({

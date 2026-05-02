@@ -30,7 +30,7 @@ export async function GET() {
     const snapshot = await getDocs(query);
     console.log(`✅ Found ${snapshot.docs.length} articles`);
 
-    const articles = [];
+    const articles: Array<{ id: string; title: string; section: string; date: any; allFields: string[] }> = [];
     snapshot.docs.forEach(doc => {
       const data = doc.data();
       articles.push({
