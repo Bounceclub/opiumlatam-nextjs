@@ -12,7 +12,7 @@ export async function GET() {
     const allSnapshot = await getDocs(allQuery);
     console.log(`✅ Found ${allSnapshot.docs.length} articles`);
 
-    const allArticles = allSnapshot.docs.map(doc => ({
+    const allArticles: Array<{ id: string; title: string; section: string; date: any }> = allSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
@@ -27,7 +27,7 @@ export async function GET() {
     const noticiasSnapshot = await getDocs(noticiasQuery);
     console.log(`✅ Found ${noticiasSnapshot.docs.length} noticias`);
 
-    const noticiasArticles = noticiasSnapshot.docs.map(doc => ({
+    const noticiasArticles: Array<{ id: string; title: string; section: string; date: any }> = noticiasSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
@@ -42,7 +42,7 @@ export async function GET() {
     const discusionSnapshot = await getDocs(discusionQuery);
     console.log(`✅ Found ${discusionSnapshot.docs.length} discusion`);
 
-    const discusionArticles = discusionSnapshot.docs.map(doc => ({
+    const discusionArticles: Array<{ id: string; title: string; section: string; date: any }> = discusionSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
@@ -57,7 +57,7 @@ export async function GET() {
     const resenasSnapshot = await getDocs(resenasQuery);
     console.log(`✅ Found ${resenasSnapshot.docs.length} resenas`);
 
-    const resenasArticles = resenasSnapshot.docs.map(doc => ({
+    const resenasArticles: Array<{ id: string; title: string; section: string; date: any }> = resenasSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
