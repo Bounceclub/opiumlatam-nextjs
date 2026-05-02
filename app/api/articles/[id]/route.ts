@@ -15,7 +15,7 @@ export async function GET(
     const docRef = adminDb.collection('articles').doc(id);
     const docSnap = await docRef.get();
 
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return NextResponse.json({
         success: false,
         error: 'Artículo no encontrado'
