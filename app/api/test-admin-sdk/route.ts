@@ -43,7 +43,7 @@ export async function GET() {
 
     console.log(`✅ Query completed. Found ${snapshot.docs.length} documents`);
 
-    const articles = [];
+    const articles: Array<{ id: string; title: string; section: string; date: any }> = [];
     snapshot.docs.forEach(doc => {
       const data = doc.data();
       articles.push({
