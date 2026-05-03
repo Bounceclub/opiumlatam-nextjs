@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface LoginPageProps {
-  searchParams?: { redirect?: string }
+  searchParams?: Promise<{ redirect?: string }>
 }
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
@@ -12,7 +12,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const redirect = searchParams?.redirect || '/'
+  const redirect = '/' // Default redirect, will be handled by middleware
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,7 +27,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
       })
 
       if (response.ok) {
-        router.push(redirect)
+        router.push('/')
       } else {
         setError('Contraseña incorrecta')
       }
